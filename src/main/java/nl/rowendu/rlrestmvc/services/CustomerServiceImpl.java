@@ -1,8 +1,9 @@
 package nl.rowendu.rlrestmvc.services;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.rowendu.rlrestmvc.model.Customer;
+import nl.rowendu.rlrestmvc.model.CustomerDto;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,11 +13,11 @@ import java.util.*;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private Map<UUID, Customer> customerMap;
+    private Map<UUID, CustomerDto> customerMap;
 
     public CustomerServiceImpl() {
 
-        Customer customer1 = Customer.builder()
+        CustomerDto customerDto1 = CustomerDto.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("Bachus")
@@ -24,7 +25,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
 
-        Customer customer2 = Customer.builder()
+        CustomerDto customerDto2 = CustomerDto.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("Markus")
@@ -32,7 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
 
-        Customer customer3 = Customer.builder()
+        CustomerDto customerDto3 = CustomerDto.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("Lazerus")
@@ -41,20 +42,61 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
 
         this.customerMap = new HashMap<>();
-        customerMap.put(customer1.getId(), customer1);
-        customerMap.put(customer2.getId(), customer2);
-        customerMap.put(customer3.getId(), customer3);
+        customerMap.put(customerDto1.getId(), customerDto1);
+        customerMap.put(customerDto2.getId(), customerDto2);
+        customerMap.put(customerDto3.getId(), customerDto3);
     }
 
     @Override
-    public List<Customer> listCustomers() {
+    public List<CustomerDto> listCustomers() {
         return new ArrayList<>(customerMap.values());
     }
 
     @Override
-    public Customer getCustomerById(UUID id) {
+    public Optional<CustomerDto> getCustomerById(UUID id) {
         log.debug("Get Customer by Id - in service. Id: " + id.toString());
 
-        return customerMap.get(id);
+        return Optional.of(customerMap.get(id));
+    }
+
+    @Override
+    public CustomerDto saveNewCustomer(CustomerDto customerDto) {
+        CustomerDto savedCustomerDto = CustomerDto.builder()
+                .id(UUID.randomUUID())
+                .version(1)
+                .name(customerDto.getName())
+                .createdDate(LocalDateTime.now())
+                .lastModifiedDate(LocalDateTime.now())
+                .build();
+        customerMap.put(savedCustomerDto.getId(), savedCustomerDto);
+        return savedCustomerDto;
+    }
+
+    @Override
+    public void updateCustomerById(UUID customerId, CustomerDto customerDto) {
+        CustomerDto customerDtoToUpdate = customerMap.get(customerId);
+        customerDtoToUpdate.setName(customerDto.getName());
+        customerDtoToUpdate.setLastModifiedDate(LocalDateTime.now());
+    }
+
+    @Override
+    public void deleteCustomerById(UUID customerId) {
+        customerMap.remove(customerId);
+    }
+
+    @Override
+    public void patchCustomerById(UUID customerId, CustomerDto customerDto) {
+        CustomerDto customerDtoToUpdate = customerMap.get(customerId);
+        boolean isUpdated = false;
+
+        if (StringUtils.hasText(customerDto.getName())) {
+            customerDtoToUpdate.setName(customerDto.getName());
+            isUpdated = true;
+        }
+
+        // Check if any field was updated
+        if (isUpdated) {
+            customerDtoToUpdate.setLastModifiedDate(LocalDateTime.now());
+        }
     }
 }
