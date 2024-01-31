@@ -30,5 +30,5 @@ public class Customer {
     @Column(updatable = false)
     private LocalDateTime createdDate;
     @UpdateTimestamp
-    private LocalDateTime lastModifiedDate;
+    private LocalDateTime updateDate;
 }

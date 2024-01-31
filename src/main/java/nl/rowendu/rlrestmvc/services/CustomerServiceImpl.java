@@ -22,7 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .version(1)
                 .name("Bachus")
                 .createdDate(LocalDateTime.now())
-                .lastModifiedDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
                 .build();
 
         CustomerDto customerDto2 = CustomerDto.builder()
@@ -30,7 +30,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .version(1)
                 .name("Markus")
                 .createdDate(LocalDateTime.now())
-                .lastModifiedDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
                 .build();
 
         CustomerDto customerDto3 = CustomerDto.builder()
@@ -38,7 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .version(1)
                 .name("Lazerus")
                 .createdDate(LocalDateTime.now())
-                .lastModifiedDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
                 .build();
 
         this.customerMap = new HashMap<>();
@@ -66,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .version(1)
                 .name(customerDto.getName())
                 .createdDate(LocalDateTime.now())
-                .lastModifiedDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
                 .build();
         customerMap.put(savedCustomerDto.getId(), savedCustomerDto);
         return savedCustomerDto;
@@ -76,7 +76,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void updateCustomerById(UUID customerId, CustomerDto customerDto) {
         CustomerDto customerDtoToUpdate = customerMap.get(customerId);
         customerDtoToUpdate.setName(customerDto.getName());
-        customerDtoToUpdate.setLastModifiedDate(LocalDateTime.now());
+        customerDtoToUpdate.setUpdateDate(LocalDateTime.now());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         // Check if any field was updated
         if (isUpdated) {
-            customerDtoToUpdate.setLastModifiedDate(LocalDateTime.now());
+            customerDtoToUpdate.setUpdateDate(LocalDateTime.now());
         }
     }
 }
