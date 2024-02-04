@@ -118,4 +118,25 @@ class BeerControllerIT {
 
     assertThat(updatedBeer.getBeerName()).isEqualTo("Better Beer Name");
   }
+
+  @Test
+  @Transactional
+  @Rollback
+  void testDeleteBeerById() {
+    assertThat(beerRepository.count()).isEqualTo(3);
+    Beer beer = beerRepository.findAll().getFirst();
+
+    ResponseEntity<?> responseEntity = beerController.deleteBeerById(beer.getId());
+
+    assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
+    assertThat(beerRepository.count()).isEqualTo(2);
+  }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testDeleteNotFound() {
+        UUID uuid = UUID.randomUUID();
+        assertThrows(NotFoundException.class, () -> beerController.deleteBeerById(uuid));
+    }
 }
