@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: rl-rest-mvc
+  jackson:
+    default-property-inclusion: non_null
+  main:
+    allow-bean-definition-overriding: true
+
+beer.api.path: /api/v1/beer
+

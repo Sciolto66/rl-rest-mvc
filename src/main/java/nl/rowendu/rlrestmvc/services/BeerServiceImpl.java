@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class BeerServiceImpl implements BeerService {
 
-    private Map<UUID, BeerDto> beerMap;
+    private final Map<UUID, BeerDto> beerMap;
 
     public BeerServiceImpl() {
         this.beerMap = new HashMap<>();
@@ -92,7 +92,7 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public void updateBeerById(UUID beerId, BeerDto beerDto) {
+    public Optional<BeerDto> updateBeerById(UUID beerId, BeerDto beerDto) {
         BeerDto existingBeerDto = beerMap.get(beerId);
         existingBeerDto.setBeerName(beerDto.getBeerName());
         existingBeerDto.setBeerStyle(beerDto.getBeerStyle());
@@ -100,6 +100,7 @@ public class BeerServiceImpl implements BeerService {
         existingBeerDto.setQuantityOnHand(beerDto.getQuantityOnHand());
         existingBeerDto.setUpc(beerDto.getUpc());
         existingBeerDto.setUpdateDate(LocalDateTime.now());
+        return Optional.of(existingBeerDto);
     }
 
     @Override

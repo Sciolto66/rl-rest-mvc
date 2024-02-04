@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
-
 import nl.rowendu.rlrestmvc.entities.Beer;
+import nl.rowendu.rlrestmvc.mappers.BeerMapper;
 import nl.rowendu.rlrestmvc.model.BeerDto;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
 import nl.rowendu.rlrestmvc.repositories.BeerRepository;
@@ -22,12 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 class BeerControllerIT {
   @Autowired BeerController beerController;
   @Autowired BeerRepository beerRepository;
+  @Autowired BeerMapper beerMapper;
 
   @Test
   void testListBeers() {
     List<BeerDto> beerDtoList = beerController.listBeers();
 
-    assertThat(beerDtoList.size()).isEqualTo(3);
+    assertThat(beerDtoList).hasSize(3);
   }
 
   @Transactional
@@ -37,12 +40,12 @@ class BeerControllerIT {
     beerRepository.deleteAll();
     List<BeerDto> beerDtoList = beerController.listBeers();
 
-    assertThat(beerDtoList.size()).isEqualTo(0);
+    assertThat(beerDtoList).isEmpty();
   }
 
   @Test
   void testGetBeerById() {
-    Beer beer = beerRepository.findAll().get(0);
+    Beer beer = beerRepository.findAll().getFirst();
     BeerDto beerDto = beerController.getBeerById(beer.getId());
 
     assertThat(beerDto).isNotNull();
@@ -64,20 +67,55 @@ class BeerControllerIT {
             .beerName("Bavaria")
             .beerStyle(BeerStyle.PILSNER)
             .upc("45678765543")
-            .price(new BigDecimal(0.78))
+            .price(new BigDecimal("0.78"))
             .quantityOnHand(333)
             .build();
 
-    ResponseEntity responseEntity = beerController.handlePost(beerDto);
+    ResponseEntity<BeerDto> responseEntity = beerController.handlePost(beerDto);
 
-    assertThat(responseEntity.getStatusCodeValue()).isEqualTo(201);
-    assertThat(responseEntity.getHeaders().getLocation().getPath()).isNotNull();
+    assertThat(responseEntity.getStatusCode().value()).isEqualTo(201);
+    assertThat(Objects.requireNonNull(responseEntity.getHeaders().getLocation()).getPath())
+        .isNotNull();
     assertThat(beerRepository.count()).isEqualTo(4);
 
     String[] pathParts = responseEntity.getHeaders().getLocation().getPath().split("/");
     UUID uuid = UUID.fromString(pathParts[pathParts.length - 1]);
 
-    Beer beer = beerRepository.findById(uuid).get();
+    Beer beer =
+        beerRepository
+            .findById(uuid)
+            .orElseThrow(() -> new NoSuchElementException("No beer found with id " + uuid));
     assertThat(beer).isNotNull();
+  }
+
+  @Test
+  void testUpdateNotFound() {
+    UUID uuid = UUID.randomUUID();
+    BeerDto beerDto = BeerDto.builder().build();
+    assertThrows(NotFoundException.class, () -> beerController.updateBeerById(uuid, beerDto));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  void testUpdateBeerById() {
+    Beer beer = beerRepository.findAll().getFirst();
+    BeerDto beerDto = beerMapper.beerToBeerDto(beer);
+    beerDto.setId(null);
+    beerDto.setVersion(null);
+    final String newBeerName = "Better Beer Name";
+    beerDto.setBeerName(newBeerName);
+
+    ResponseEntity<?> responseEntity = beerController.updateBeerById(beer.getId(), beerDto);
+
+    assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
+    assertThat(beerRepository.count()).isEqualTo(3);
+
+    Beer updatedBeer =
+        beerRepository
+            .findById(beer.getId())
+            .orElseThrow(() -> new NoSuchElementException("No beer found with id " + beer.getId()));
+
+    assertThat(updatedBeer.getBeerName()).isEqualTo("Better Beer Name");
   }
 }
