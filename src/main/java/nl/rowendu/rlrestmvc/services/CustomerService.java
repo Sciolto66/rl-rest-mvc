@@ -14,9 +14,9 @@ public interface CustomerService {
 
     CustomerDto saveNewCustomer(CustomerDto customerDto);
 
-    void updateCustomerById(UUID customerId, CustomerDto customerDto);
+    Optional<CustomerDto> updateCustomerById(UUID customerId, CustomerDto customerDto);
 
-    void deleteCustomerById(UUID customerId);
+    boolean deleteCustomerById(UUID customerId);
 
-    void patchCustomerById(java.util.UUID customerId, CustomerDto customerDto);
+    Optional<CustomerDto> patchCustomerById(UUID customerId, CustomerDto customerDto);
 }

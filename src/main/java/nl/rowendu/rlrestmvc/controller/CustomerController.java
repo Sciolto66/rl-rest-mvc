@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.rowendu.rlrestmvc.model.CustomerDto;
 import nl.rowendu.rlrestmvc.services.CustomerService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,48 +16,56 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("${customer.api.path}")
 public class CustomerController {
-    public static final String CUSTOMER_PATH = "/api/v1/customer";
-    public static final String CUSTOMER_PATH_ID = CUSTOMER_PATH + "/{customerId}";
 
     private final CustomerService customerService;
 
-    @PatchMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity patchCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDto customerDto){
-        customerService.patchCustomerById(customerId, customerDto);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    @Value("${customer.api.path}")
+    private String customerPath;
+
+    @PatchMapping("/{customerId}")
+    public ResponseEntity<CustomerDto> patchCustomerById(@PathVariable("customerId") UUID customerId,
+                                            @RequestBody CustomerDto customerDto){
+        if (customerService.patchCustomerById(customerId, customerDto).isEmpty()) {
+            throw new NotFoundException();
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity deleteCustomerById(@PathVariable("customerId") UUID customerId){
-        customerService.deleteCustomerById(customerId);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity<Void> deleteCustomerById(@PathVariable("customerId") UUID customerId){
+        if (!customerService.deleteCustomerById(customerId)) {
+            throw new NotFoundException();
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity updateCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDto customerDto){
-        customerService.updateCustomerById(customerId, customerDto);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    @PutMapping("/{customerId}")
+    public ResponseEntity<CustomerDto> updateCustomerById(@PathVariable("customerId") UUID customerId,
+                                                          @RequestBody CustomerDto customerDto){
+        if (customerService.updateCustomerById(customerId, customerDto).isEmpty()) {
+            throw new NotFoundException();
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity handlePost(@RequestBody CustomerDto customerDto) {
+    @PostMapping()
+    public ResponseEntity<CustomerDto> handlePost(@RequestBody CustomerDto customerDto) {
         CustomerDto savedCustomerDto = customerService.saveNewCustomer(customerDto);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/v1/customer/" + savedCustomerDto.getId().toString());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        headers.add("Location", customerPath + "/" + savedCustomerDto.getId().toString());
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping(CUSTOMER_PATH)
+    @GetMapping()
     public List<CustomerDto> listCustomers(){
         return customerService.listCustomers();
     }
 
-    @GetMapping(CUSTOMER_PATH_ID)
+    @GetMapping("/{customerId}")
     public CustomerDto getCustomerById(@PathVariable("customerId") UUID customerId){
-
-        log.debug("Get Customer by Id - in controller");
-
-        return customerService.getCustomerById(customerId).orElseThrow(NotFoundException::new);
+        return customerService.getCustomerById(customerId)
+                .orElseThrow(NotFoundException::new);
     }
 
 }

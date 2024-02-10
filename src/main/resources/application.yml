@@ -6,5 +6,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
-beer.api.path: /api/v1/beer
+beer:
+  api:
+    path: /api/v1/beer
+customer:
+  api:
+    path: /api/v1/customer
 

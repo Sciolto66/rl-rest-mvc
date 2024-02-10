@@ -13,7 +13,7 @@ import java.util.*;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private Map<UUID, CustomerDto> customerMap;
+    private final Map<UUID, CustomerDto> customerMap;
 
     public CustomerServiceImpl() {
 
@@ -54,8 +54,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Optional<CustomerDto> getCustomerById(UUID id) {
-        log.debug("Get Customer by Id - in service. Id: " + id.toString());
-
         return Optional.of(customerMap.get(id));
     }
 
@@ -73,30 +71,26 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateCustomerById(UUID customerId, CustomerDto customerDto) {
+    public Optional<CustomerDto> updateCustomerById(UUID customerId, CustomerDto customerDto) {
         CustomerDto customerDtoToUpdate = customerMap.get(customerId);
         customerDtoToUpdate.setName(customerDto.getName());
         customerDtoToUpdate.setUpdateDate(LocalDateTime.now());
+        return Optional.of(customerDtoToUpdate);
     }
 
     @Override
-    public void deleteCustomerById(UUID customerId) {
+    public boolean deleteCustomerById(UUID customerId) {
         customerMap.remove(customerId);
+        return true;
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, CustomerDto customerDto) {
+    public Optional<CustomerDto> patchCustomerById(UUID customerId, CustomerDto customerDto) {
         CustomerDto customerDtoToUpdate = customerMap.get(customerId);
-        boolean isUpdated = false;
 
         if (StringUtils.hasText(customerDto.getName())) {
             customerDtoToUpdate.setName(customerDto.getName());
-            isUpdated = true;
         }
-
-        // Check if any field was updated
-        if (isUpdated) {
-            customerDtoToUpdate.setUpdateDate(LocalDateTime.now());
-        }
+        return Optional.of(customerDtoToUpdate);
     }
 }

@@ -32,10 +32,8 @@ class BeerDtoControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
     @Autowired
     ObjectMapper objectMapper;
-
     @MockBean
     BeerService beerService;
     BeerServiceImpl beerServiceImpl;
@@ -55,8 +53,9 @@ class BeerDtoControllerTest {
     @Test
     void testPatchBeerById() throws Exception {
         BeerDto beerDto = beerServiceImpl.listBeers().getFirst();
-
-        Map<String, Object> beerPatch = Map.of("beerName", "New Beer Name");
+        given(beerService.patchBeerById(any(UUID.class), any(BeerDto.class)))
+                .willReturn(Optional.of(beerDto));
+        Map<String, Object> beerPatch = Map.of("beerName", "Patched Beer Name");
 
         mockMvc.perform(patch(beerPath + "/{beerId}", beerDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +64,6 @@ class BeerDtoControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(beerService).patchBeerById(uuidArgumentCaptor.capture(), beerArgumentCaptor.capture());
-
         assertThat(uuidArgumentCaptor.getValue()).isEqualTo(beerDto.getId());
         assertThat(beerArgumentCaptor.getValue().getBeerName()).isEqualTo(beerPatch.get("beerName"));
     }
@@ -73,7 +71,6 @@ class BeerDtoControllerTest {
     @Test
     void testDeleteBeerById() throws Exception {
         BeerDto beerDto = beerServiceImpl.listBeers().getFirst();
-
         given(beerService.deleteBeerById(any(UUID.class))).willReturn(true);
 
         mockMvc.perform(delete(beerPath + "/{beerId}", beerDto.getId())
@@ -81,14 +78,12 @@ class BeerDtoControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(beerService).deleteBeerById(uuidArgumentCaptor.capture());
-
         assertThat(uuidArgumentCaptor.getValue()).isEqualTo(beerDto.getId());
     }
 
     @Test
     void testUpdateBeerById() throws Exception {
         BeerDto beerDto = beerServiceImpl.listBeers().getFirst();
-
         given(beerService.updateBeerById(any(UUID.class), any(BeerDto.class))).willReturn(Optional.of(beerDto));
 
         mockMvc.perform(put(beerPath + "/{beerId}", beerDto.getId())

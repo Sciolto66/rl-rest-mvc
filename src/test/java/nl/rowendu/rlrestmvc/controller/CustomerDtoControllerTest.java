@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -31,10 +32,8 @@ class CustomerDtoControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
     @Autowired
     ObjectMapper objectMapper;
-
     @MockBean
     CustomerService customerService;
     CustomerServiceImpl customerServiceImpl;
@@ -49,40 +48,47 @@ class CustomerDtoControllerTest {
     @Captor
     ArgumentCaptor<CustomerDto> customerArgumentCaptor;
 
+    @Value("${customer.api.path}")
+    private String customerPath;
+
     @Test
     void testPatchCustomerById() throws Exception {
-        CustomerDto customerDto = customerServiceImpl.listCustomers().get(0);
-
+        CustomerDto customerDto = customerServiceImpl.listCustomers().getFirst();
+        given(customerService.patchCustomerById(any(UUID.class), any(CustomerDto.class)))
+                .willReturn(Optional.of(customerDto));
         Map<String, Object> customerPatch = Map.of("name", "New Customer Name");
 
-        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, customerDto.getId())
+        mockMvc.perform(patch(customerPath + "/{customerId}", customerDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerPatch)))
                 .andExpect(status().isNoContent());
 
         verify(customerService).patchCustomerById(uuidArgumentCaptor.capture(), customerArgumentCaptor.capture());
-
         assertThat(uuidArgumentCaptor.getValue()).isEqualTo(customerDto.getId());
         assertThat(customerArgumentCaptor.getValue().getName()).isEqualTo(customerPatch.get("name"));
     }
 
     @Test
     void testDeleteCustomerById() throws Exception {
-        CustomerDto customerDto = customerServiceImpl.listCustomers().get(0);
-        mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, customerDto.getId())
+        CustomerDto customerDto = customerServiceImpl.listCustomers().getFirst();
+        given(customerService.deleteCustomerById(any(UUID.class))).willReturn(true);
+
+        mockMvc.perform(delete(customerPath + "/{customerId}", customerDto.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(customerService).deleteCustomerById(uuidArgumentCaptor.capture());
-
         assertThat(uuidArgumentCaptor.getValue()).isEqualTo(customerDto.getId());
     }
 
     @Test
     void testUpdateCustomerById() throws Exception {
-        CustomerDto customerDto = customerServiceImpl.listCustomers().get(0);
-        mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, customerDto.getId())
+        CustomerDto customerDto = customerServiceImpl.listCustomers().getFirst();
+        given(customerService.updateCustomerById(any(UUID.class), any(CustomerDto.class)))
+                .willReturn(Optional.of(customerDto));
+
+        mockMvc.perform(put(customerPath + "/{customerId}", customerDto.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerDto)))
@@ -94,14 +100,14 @@ class CustomerDtoControllerTest {
 
     @Test
     void testCreateNewCustomer() throws Exception {
-        CustomerDto customerDto = customerServiceImpl.listCustomers().get(0);
+        CustomerDto customerDto = customerServiceImpl.listCustomers().getFirst();
         customerDto.setId(null);
         customerDto.setVersion(null);
 
         given(customerService.saveNewCustomer(any(CustomerDto.class)))
                 .willReturn(customerServiceImpl.listCustomers().get(1));
 
-        mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
+        mockMvc.perform(post(customerPath)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerDto)))
@@ -111,12 +117,12 @@ class CustomerDtoControllerTest {
 
     @Test
     void getCustomerById() throws Exception {
-        CustomerDto testCustomerDto = customerServiceImpl.listCustomers().get(0);
+        CustomerDto testCustomerDto = customerServiceImpl.listCustomers().getFirst();
 
         given(customerService.getCustomerById(testCustomerDto.getId()))
                 .willReturn(Optional.of(testCustomerDto));
 
-        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, testCustomerDto.getId())
+        mockMvc.perform(get(customerPath + "/{customerId}", testCustomerDto.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -128,7 +134,7 @@ class CustomerDtoControllerTest {
     void getCustomerByIdNotFound() throws Exception {
         given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
 
-        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID())
+        mockMvc.perform(get(customerPath + "/{customerId}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -137,7 +143,7 @@ class CustomerDtoControllerTest {
     void getCustomerList() throws Exception {
         given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
 
-        mockMvc.perform(get(CustomerController.CUSTOMER_PATH)
+        mockMvc.perform(get(customerPath)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

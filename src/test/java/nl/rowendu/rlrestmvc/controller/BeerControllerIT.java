@@ -39,7 +39,6 @@ class BeerControllerIT {
   void testEmptyListBeers() {
     beerRepository.deleteAll();
     List<BeerDto> beerDtoList = beerController.listBeers();
-
     assertThat(beerDtoList).isEmpty();
   }
 
@@ -47,7 +46,6 @@ class BeerControllerIT {
   void testGetBeerById() {
     Beer beer = beerRepository.findAll().getFirst();
     BeerDto beerDto = beerController.getBeerById(beer.getId());
-
     assertThat(beerDto).isNotNull();
     assertThat(beerDto.getId()).isEqualTo(beer.getId());
   }
@@ -106,7 +104,7 @@ class BeerControllerIT {
     final String newBeerName = "Better Beer Name";
     beerDto.setBeerName(newBeerName);
 
-    ResponseEntity<?> responseEntity = beerController.updateBeerById(beer.getId(), beerDto);
+    ResponseEntity<BeerDto> responseEntity = beerController.updateBeerById(beer.getId(), beerDto);
 
     assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
     assertThat(beerRepository.count()).isEqualTo(3);
@@ -117,6 +115,35 @@ class BeerControllerIT {
             .orElseThrow(() -> new NoSuchElementException("No beer found with id " + beer.getId()));
 
     assertThat(updatedBeer.getBeerName()).isEqualTo("Better Beer Name");
+  }
+
+  @Test
+  void testPatchNotFound() {
+    UUID uuid = UUID.randomUUID();
+    BeerDto beerDto = BeerDto.builder().build();
+    assertThrows(NotFoundException.class, () -> beerController.patchBeerById(uuid, beerDto));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  void testPatchBeerById() {
+    Beer beer = beerRepository.findAll().getFirst();
+    BeerDto beerDto = beerMapper.beerToBeerDto(beer);
+    final String newBeerName = "Patched Beer Name";
+    beerDto.setBeerName(newBeerName);
+
+    ResponseEntity<BeerDto> responseEntity = beerController.patchBeerById(beer.getId(), beerDto);
+
+    assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
+    assertThat(beerRepository.count()).isEqualTo(3);
+
+    Beer patchedBeer =
+        beerRepository
+            .findById(beer.getId())
+            .orElseThrow(() -> new NoSuchElementException("No beer found with id " + beer.getId()));
+
+    assertThat(patchedBeer.getBeerName()).isEqualTo("Patched Beer Name");
   }
 
   @Test
@@ -132,11 +159,9 @@ class BeerControllerIT {
     assertThat(beerRepository.count()).isEqualTo(2);
   }
 
-    @Test
-    @Transactional
-    @Rollback
-    void testDeleteNotFound() {
-        UUID uuid = UUID.randomUUID();
-        assertThrows(NotFoundException.class, () -> beerController.deleteBeerById(uuid));
-    }
+  @Test
+  void testDeleteNotFound() {
+    UUID uuid = UUID.randomUUID();
+    assertThrows(NotFoundException.class, () -> beerController.deleteBeerById(uuid));
+  }
 }
