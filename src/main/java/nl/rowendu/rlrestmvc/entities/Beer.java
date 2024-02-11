@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,11 +34,26 @@ public class Beer {
 
     @Version
     private Integer version;
+
+    @NotNull
+    @NotBlank
+    @Size(max = 50, message = "Beer name is too long")
+    @Column(length = 50)
     private String beerName;
+
+    @NotNull
     private BeerStyle beerStyle;
+
+    @NotNull
+    @NotBlank
+    @Size(max = 255)
     private String upc;
+
     private Integer quantityOnHand;
+
+    @NotNull
     private BigDecimal price;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdDate;

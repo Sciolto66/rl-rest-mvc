@@ -1,30 +1,70 @@
 package nl.rowendu.rlrestmvc.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.mappers.BeerMapper;
 import nl.rowendu.rlrestmvc.model.BeerDto;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
 import nl.rowendu.rlrestmvc.repositories.BeerRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest
 class BeerControllerIT {
+  public static final String LONG_BEER_NAME =
+      "Test Beer 01234567890123456789012345678901234567890123456789";
   @Autowired BeerController beerController;
   @Autowired BeerRepository beerRepository;
   @Autowired BeerMapper beerMapper;
+  @Autowired WebApplicationContext wac;
+  @Autowired ObjectMapper objectMapper;
+  MockMvc mockMvc;
+
+  @Value("${beer.api.path}")
+  private String beerPath;
+
+  @BeforeEach
+  void setUp() {
+    mockMvc = webAppContextSetup(wac).build();
+  }
+
+  @Test
+  void testPatchBeerByIdBadName() throws Exception {
+    Beer beer = beerRepository.findAll().getFirst();
+    Map<String, Object> beerPatch = Map.of("beerName", LONG_BEER_NAME);
+    MvcResult result =
+        mockMvc
+            .perform(
+                patch(beerPath + "/{beerId}", beer.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(beerPatch)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.length()", is(1)))
+            .andReturn();
+
+    System.out.println(result.getResponse().getContentAsString());
+  }
 
   @Test
   void testListBeers() {
