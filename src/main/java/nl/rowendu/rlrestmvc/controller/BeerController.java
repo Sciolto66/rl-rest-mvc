@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -50,7 +51,7 @@ public class BeerController {
   }
 
   @PostMapping()
-  public ResponseEntity<BeerDto> handlePost(@RequestBody BeerDto beerDto) {
+  public ResponseEntity<BeerDto> handlePost(@Validated @RequestBody BeerDto beerDto) {
     BeerDto savedBeerDto = beerService.saveNewBeer(beerDto);
     HttpHeaders headers = new HttpHeaders();
     headers.add("Location", beerPath + "/" + savedBeerDto.getId().toString());
