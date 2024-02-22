@@ -10,9 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.*;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -24,12 +23,8 @@ public class Beer {
 
     @Id
     @UuidGenerator
-    @Column(
-            length = 36,
-            columnDefinition = "varchar",
-            updatable = false,
-            nullable = false
-    )
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
     @Version

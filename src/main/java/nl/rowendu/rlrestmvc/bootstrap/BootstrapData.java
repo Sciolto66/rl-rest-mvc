@@ -26,8 +26,9 @@ public class BootstrapData implements CommandLineRunner {
   }
 
   private void loadBeerData() {
-    if (beerRepository.count() == 0){
-      Beer beer1 = Beer.builder()
+    if (beerRepository.count() == 0) {
+      Beer beer1 =
+          Beer.builder()
               .beerName("Galaxy Cat")
               .beerStyle(BeerStyle.PALE_ALE)
               .upc("12356")
@@ -35,9 +36,11 @@ public class BootstrapData implements CommandLineRunner {
               .quantityOnHand(122)
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
-      Beer beer2 = Beer.builder()
+      Beer beer2 =
+          Beer.builder()
               .beerName("Crank")
               .beerStyle(BeerStyle.PALE_ALE)
               .upc("12356222")
@@ -45,9 +48,11 @@ public class BootstrapData implements CommandLineRunner {
               .quantityOnHand(392)
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
-      Beer beer3 = Beer.builder()
+      Beer beer3 =
+          Beer.builder()
               .beerName("Sunshine City")
               .beerStyle(BeerStyle.IPA)
               .upc("12356")
@@ -55,6 +60,7 @@ public class BootstrapData implements CommandLineRunner {
               .quantityOnHand(144)
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
       beerRepository.save(beer1);
@@ -66,26 +72,31 @@ public class BootstrapData implements CommandLineRunner {
   private void loadCustomerData() {
 
     if (customerRepository.count() == 0) {
-      Customer customer1 = Customer.builder()
+      Customer customer1 =
+          Customer.builder()
               .name("Customer 1")
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
-      Customer customer2 = Customer.builder()
+      Customer customer2 =
+          Customer.builder()
               .name("Customer 2")
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
-      Customer customer3 = Customer.builder()
+      Customer customer3 =
+          Customer.builder()
               .name("Customer 3")
               .createdDate(LocalDateTime.now())
               .updateDate(LocalDateTime.now())
+              .version(1)
               .build();
 
       customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
     }
-
   }
 }

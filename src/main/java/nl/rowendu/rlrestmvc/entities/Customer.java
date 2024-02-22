@@ -1,14 +1,9 @@
 package nl.rowendu.rlrestmvc.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
-
+import org.hibernate.annotations.*;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,11 +16,15 @@ import java.util.UUID;
 public class Customer {
     @Id
     @UuidGenerator
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
     @Version
     private Integer version;
     private String name;
+    @Column(length = 255)
+    private String email;
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdDate;
