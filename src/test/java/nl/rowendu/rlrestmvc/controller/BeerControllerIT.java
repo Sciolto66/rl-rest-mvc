@@ -70,7 +70,7 @@ class BeerControllerIT {
   void testListBeers() {
     List<BeerDto> beerDtoList = beerController.listBeers();
 
-    assertThat(beerDtoList).hasSize(3);
+    assertThat(beerDtoList).hasSize(2413);
   }
 
   @Transactional
@@ -114,7 +114,7 @@ class BeerControllerIT {
     assertThat(responseEntity.getStatusCode().value()).isEqualTo(201);
     assertThat(Objects.requireNonNull(responseEntity.getHeaders().getLocation()).getPath())
         .isNotNull();
-    assertThat(beerRepository.count()).isEqualTo(4);
+    assertThat(beerRepository.count()).isEqualTo(2414);
 
     String[] pathParts = responseEntity.getHeaders().getLocation().getPath().split("/");
     UUID uuid = UUID.fromString(pathParts[pathParts.length - 1]);
@@ -147,7 +147,7 @@ class BeerControllerIT {
     ResponseEntity<BeerDto> responseEntity = beerController.updateBeerById(beer.getId(), beerDto);
 
     assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
-    assertThat(beerRepository.count()).isEqualTo(3);
+    assertThat(beerRepository.count()).isEqualTo(2413);
 
     Beer updatedBeer =
         beerRepository
@@ -176,7 +176,7 @@ class BeerControllerIT {
     ResponseEntity<BeerDto> responseEntity = beerController.patchBeerById(beer.getId(), beerDto);
 
     assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
-    assertThat(beerRepository.count()).isEqualTo(3);
+    assertThat(beerRepository.count()).isEqualTo(2413);
 
     Beer patchedBeer =
         beerRepository
@@ -190,13 +190,13 @@ class BeerControllerIT {
   @Transactional
   @Rollback
   void testDeleteBeerById() {
-    assertThat(beerRepository.count()).isEqualTo(3);
+    assertThat(beerRepository.count()).isEqualTo(2413);
     Beer beer = beerRepository.findAll().getFirst();
 
     ResponseEntity<?> responseEntity = beerController.deleteBeerById(beer.getId());
 
     assertThat(responseEntity.getStatusCode().value()).isEqualTo(204);
-    assertThat(beerRepository.count()).isEqualTo(2);
+    assertThat(beerRepository.count()).isEqualTo(2412);
   }
 
   @Test
