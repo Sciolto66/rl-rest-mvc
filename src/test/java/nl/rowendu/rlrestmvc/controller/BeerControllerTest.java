@@ -47,7 +47,8 @@ class BeerControllerTest {
 
   @Test
   void testPatchBeerById() throws Exception {
-    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
     given(beerService.patchBeerById(any(UUID.class), any(BeerDto.class)))
         .willReturn(Optional.of(beerDto));
     Map<String, Object> beerPatch = Map.of("beerName", "Patched Beer Name");
@@ -67,7 +68,8 @@ class BeerControllerTest {
 
   @Test
   void testDeleteBeerById() throws Exception {
-    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
     given(beerService.deleteBeerById(any(UUID.class))).willReturn(true);
 
     mockMvc
@@ -80,7 +82,8 @@ class BeerControllerTest {
 
   @Test
   void testUpdateBeerById() throws Exception {
-    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
     given(beerService.updateBeerById(any(UUID.class), any(BeerDto.class)))
         .willReturn(Optional.of(beerDto));
 
@@ -96,7 +99,8 @@ class BeerControllerTest {
 
   @Test
   void testUpdateBeerByIdBlankName() throws Exception {
-    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
     beerDto.setBeerName("");
 
     mockMvc
@@ -111,12 +115,14 @@ class BeerControllerTest {
 
   @Test
   void testCreateNewBeer() throws Exception {
-    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto beerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
     beerDto.setVersion(null);
     beerDto.setId(null);
 
     given(beerService.saveNewBeer(any(BeerDto.class)))
-        .willReturn(beerServiceImpl.listBeers(null, null, null).get(1));
+        .willReturn(beerServiceImpl.listBeers(null, null, null, 1, 25)
+                .getContent().get(1));
 
     mockMvc
         .perform(
@@ -130,20 +136,24 @@ class BeerControllerTest {
 
   @Test
   void getBeerList() throws Exception {
-    given(beerService.listBeers(null, null, null)).willReturn(beerServiceImpl.listBeers(null, null, null));
+    given(beerService.listBeers(any(), any(), any(), any(), any()))
+            .willReturn(beerServiceImpl.listBeers(null, null, null, 1, 25));
 
     mockMvc
         .perform(get(beerPath).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(beerServiceImpl.listBeers(null, null, null).size())));
+        .andExpect(jsonPath("$.content.length()",
+                is(beerServiceImpl.listBeers(null, null, null, 1, 25)
+                .getContent().size())));
   }
 
   @Test
   void testCreateBeerNullBeerName() throws Exception {
     BeerDto beerDto = BeerDto.builder().build();
     given(beerService.saveNewBeer(any(BeerDto.class)))
-        .willReturn(beerServiceImpl.listBeers(null, null, null).get(1));
+        .willReturn(beerServiceImpl.listBeers(null, null, null, 1, 25)
+                .getContent().get(1));
     MvcResult mvcResult =
         mockMvc
             .perform(
@@ -159,18 +169,20 @@ class BeerControllerTest {
 
   @Test
   void testListBeers() throws Exception {
-    given(beerService.listBeers(any(), any() , any())).willReturn(beerServiceImpl.listBeers(null, null, null));
+    given(beerService.listBeers(any(), any() , any(), any(), any()))
+            .willReturn(beerServiceImpl.listBeers(null, null, null, 1, 25));
 
     mockMvc
         .perform(get(beerPath).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)));
+        .andExpect(jsonPath("$.content.length()", is(3)));
   }
 
   @Test
   void getBeerById() throws Exception {
-    BeerDto testBeerDto = beerServiceImpl.listBeers(null, null, null).getFirst();
+    BeerDto testBeerDto = beerServiceImpl.listBeers(null, null, null, 1, 25)
+            .getContent().getFirst();
 
     given(beerService.getBeerById(testBeerDto.getId())).willReturn(Optional.of(testBeerDto));
 

@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import jakarta.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.util.List;
-
 import nl.rowendu.rlrestmvc.bootstrap.BootstrapData;
 import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
@@ -15,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 
 @DataJpaTest
 @Import({BootstrapData.class, BeerCsvServiceImpl.class})
@@ -24,13 +23,13 @@ class BeerRepositoryTest {
 
   @Test
   void testGetBeerListByStyle() {
-    List<Beer> list = beerRepository.findAllByBeerStyle(BeerStyle.IPA);
+    Page<Beer> list = beerRepository.findAllByBeerStyle(BeerStyle.IPA, null);
     assertThat(list).hasSize(548);
   }
 
   @Test
   void testGetBeerListByName() {
-    List<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%");
+    Page<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null);
     assertThat(list).hasSize(336);
   }
 
