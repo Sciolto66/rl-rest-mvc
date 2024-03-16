@@ -59,8 +59,9 @@ public class BeerController {
   }
 
   @GetMapping()
-  public List<BeerDto> listBeers() {
-    return beerService.listBeers();
+  public List<BeerDto> listBeers(@RequestParam(required = false) String beerName) {
+
+    return beerService.listBeers(beerName);
   }
 
   @GetMapping("/{beerId}")

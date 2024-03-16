@@ -5,16 +5,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import jakarta.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.util.List;
+
+import nl.rowendu.rlrestmvc.bootstrap.BootstrapData;
 import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
+import nl.rowendu.rlrestmvc.services.BeerCsvServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import({BootstrapData.class, BeerCsvServiceImpl.class})
 class BeerRepositoryTest {
 
   @Autowired BeerRepository beerRepository;
+
+  @Test
+  void testGetBeerListByName() {
+    List<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%");
+    assertThat(list).hasSize(336);
+  }
 
   @Test
   void testSaveBeer() {

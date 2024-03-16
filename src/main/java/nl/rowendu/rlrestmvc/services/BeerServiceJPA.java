@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
+import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.mappers.BeerMapper;
 import nl.rowendu.rlrestmvc.model.BeerDto;
 import nl.rowendu.rlrestmvc.repositories.BeerRepository;
@@ -21,10 +22,23 @@ public class BeerServiceJPA implements BeerService {
   private final BeerMapper beerMapper;
 
   @Override
-  public List<BeerDto> listBeers() {
-    return beerRepository.findAll().stream()
+  public List<BeerDto> listBeers(String beerName) {
+      List<Beer> beerList;
+
+        if (StringUtils.hasText(beerName)) {
+            beerList = listBeersByName(beerName);
+        } else {
+            beerList = beerRepository.findAll();
+        }
+
+    return beerList
+            .stream()
             .map(beerMapper::beerToBeerDto)
             .toList();
+  }
+
+  public List<Beer> listBeersByName(String beerName) {
+      return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
   }
 
   @Override

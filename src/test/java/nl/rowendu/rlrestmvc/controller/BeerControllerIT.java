@@ -3,6 +3,7 @@ package nl.rowendu.rlrestmvc.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,6 +50,14 @@ class BeerControllerIT {
   }
 
   @Test
+  void testListBeersByName() throws Exception {
+    mockMvc.perform(get(beerPath)
+            .queryParam("beerName", "IPA"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()", is(336)));
+  }
+
+  @Test
   void testPatchBeerByIdBadName() throws Exception {
     Beer beer = beerRepository.findAll().getFirst();
     Map<String, Object> beerPatch = Map.of("beerName", LONG_BEER_NAME);
@@ -68,7 +77,7 @@ class BeerControllerIT {
 
   @Test
   void testListBeers() {
-    List<BeerDto> beerDtoList = beerController.listBeers();
+    List<BeerDto> beerDtoList = beerController.listBeers(null);
 
     assertThat(beerDtoList).hasSize(2413);
   }
@@ -78,7 +87,7 @@ class BeerControllerIT {
   @Test
   void testEmptyListBeers() {
     beerRepository.deleteAll();
-    List<BeerDto> beerDtoList = beerController.listBeers();
+    List<BeerDto> beerDtoList = beerController.listBeers(null);
     assertThat(beerDtoList).isEmpty();
   }
 
