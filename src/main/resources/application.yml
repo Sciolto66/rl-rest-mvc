@@ -2,7 +2,7 @@ spring:
   application:
     name: rl-rest-mvc
   jackson:
-    default-property-inclusion: non_null
+    default-property-inclusion: always
   main:
     allow-bean-definition-overriding: true
 
