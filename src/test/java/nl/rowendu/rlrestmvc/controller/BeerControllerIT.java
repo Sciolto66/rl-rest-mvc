@@ -58,6 +58,14 @@ class BeerControllerIT {
   }
 
   @Test
+  void testListBeersByStyle() throws Exception {
+    mockMvc.perform(get(beerPath)
+            .queryParam("beerStyle", BeerStyle.IPA.name()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()", is(548)));
+  }
+
+  @Test
   void testPatchBeerByIdBadName() throws Exception {
     Beer beer = beerRepository.findAll().getFirst();
     Map<String, Object> beerPatch = Map.of("beerName", LONG_BEER_NAME);
@@ -77,7 +85,7 @@ class BeerControllerIT {
 
   @Test
   void testListBeers() {
-    List<BeerDto> beerDtoList = beerController.listBeers(null);
+    List<BeerDto> beerDtoList = beerController.listBeers(null, null);
 
     assertThat(beerDtoList).hasSize(2413);
   }
@@ -87,7 +95,7 @@ class BeerControllerIT {
   @Test
   void testEmptyListBeers() {
     beerRepository.deleteAll();
-    List<BeerDto> beerDtoList = beerController.listBeers(null);
+    List<BeerDto> beerDtoList = beerController.listBeers(null, null);
     assertThat(beerDtoList).isEmpty();
   }
 

@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.rowendu.rlrestmvc.model.BeerDto;
+import nl.rowendu.rlrestmvc.model.BeerStyle;
 import nl.rowendu.rlrestmvc.services.BeerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -59,9 +60,9 @@ public class BeerController {
   }
 
   @GetMapping()
-  public List<BeerDto> listBeers(@RequestParam(required = false) String beerName) {
-
-    return beerService.listBeers(beerName);
+  public List<BeerDto> listBeers(@RequestParam(required = false) String beerName,
+                                 @RequestParam(required = false) BeerStyle beerStyle) {
+    return beerService.listBeers(beerName, beerStyle);
   }
 
   @GetMapping("/{beerId}")

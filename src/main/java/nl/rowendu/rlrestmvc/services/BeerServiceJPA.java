@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.mappers.BeerMapper;
 import nl.rowendu.rlrestmvc.model.BeerDto;
+import nl.rowendu.rlrestmvc.model.BeerStyle;
 import nl.rowendu.rlrestmvc.repositories.BeerRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -22,23 +23,26 @@ public class BeerServiceJPA implements BeerService {
   private final BeerMapper beerMapper;
 
   @Override
-  public List<BeerDto> listBeers(String beerName) {
-      List<Beer> beerList;
+  public List<BeerDto> listBeers(String beerName, BeerStyle beerStyle) {
+    List<Beer> beerList;
 
-        if (StringUtils.hasText(beerName)) {
-            beerList = listBeersByName(beerName);
-        } else {
-            beerList = beerRepository.findAll();
-        }
+    if (StringUtils.hasText(beerName) && beerStyle == null) {
+      beerList = listBeersByName(beerName);
+    } else if (!StringUtils.hasText(beerName) && beerStyle != null) {
+      beerList = listBeersByStyle(beerStyle);
+    } else {
+      beerList = beerRepository.findAll();
+    }
 
-    return beerList
-            .stream()
-            .map(beerMapper::beerToBeerDto)
-            .toList();
+    return beerList.stream().map(beerMapper::beerToBeerDto).toList();
   }
 
   public List<Beer> listBeersByName(String beerName) {
-      return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
+    return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%");
+  }
+
+  public List<Beer> listBeersByStyle(BeerStyle beerStyle) {
+    return beerRepository.findAllByBeerStyle(beerStyle);
   }
 
   @Override
