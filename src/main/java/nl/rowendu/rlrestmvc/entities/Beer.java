@@ -1,13 +1,13 @@
 package nl.rowendu.rlrestmvc.entities;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 import lombok.*;
 import nl.rowendu.rlrestmvc.model.BeerStyle;
 import org.hibernate.annotations.*;
@@ -48,6 +48,9 @@ public class Beer {
 
     @NotNull
     private BigDecimal price;
+
+    @OneToMany(mappedBy = "beer")
+    private Set<BeerOrderLine> beerOrderLines;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -2,6 +2,7 @@ package nl.rowendu.rlrestmvc.entities;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -39,5 +40,8 @@ public class BeerOrder {
 
     @ManyToOne
     private Customer customer;
+
+    @OneToMany(mappedBy = "beerOrder")
+    private Set<BeerOrderLine> beerOrderLines;
 
 }
