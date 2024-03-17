@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import nl.rowendu.rlrestmvc.entities.Beer;
 import nl.rowendu.rlrestmvc.entities.BeerOrder;
+import nl.rowendu.rlrestmvc.entities.BeerOrderShipment;
 import nl.rowendu.rlrestmvc.entities.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,9 +34,12 @@ class BeerOrderRepositoryTest {
         BeerOrder.builder()
                 .customerRef("Test Order")
                 .customer(testCustomer)
+                .beerOrderShipment(BeerOrderShipment.builder()
+                        .trackingNumber("123456r")
+                        .build())
                 .build();
 
-    BeerOrder savedBeerOrder = beerOrderRepository.saveAndFlush(beerOrder);
+    BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
     System.out.println(savedBeerOrder.getCustomerRef());
 
     assertThat(beerOrderRepository.count()).isEqualTo(1L);

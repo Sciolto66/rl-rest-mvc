@@ -1,6 +1,7 @@
 package nl.rowendu.rlrestmvc.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
@@ -24,7 +25,7 @@ public class BeerOrder {
         this.customerRef = customerRef;
         this.setCustomer(customer);
         this.beerOrderLines = beerOrderLines;
-        this.beerOrderShipment = beerOrderShipment;
+        this.setBeerOrderShipment(beerOrderShipment);
     }
 
     @Id
@@ -59,9 +60,16 @@ public class BeerOrder {
         }
     }
 
+    public void setBeerOrderShipment(BeerOrderShipment beerOrderShipment) {
+        this.beerOrderShipment = beerOrderShipment;
+        if (beerOrderShipment != null) {
+            beerOrderShipment.setBeerOrder(this);
+        }
+    }
+
     @OneToMany(mappedBy = "beerOrder")
     private Set<BeerOrderLine> beerOrderLines;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     private BeerOrderShipment beerOrderShipment;
 }
