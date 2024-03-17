@@ -1,11 +1,12 @@
 package nl.rowendu.rlrestmvc.entities;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.type.SqlTypes;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -30,4 +31,7 @@ public class Customer {
     private LocalDateTime createdDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;
+
+    @OneToMany(mappedBy = "customer")
+    private Set<BeerOrder> beerOrders;
 }
