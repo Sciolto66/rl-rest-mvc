@@ -56,18 +56,17 @@ class BeerRepositoryTest {
     final String expectedErrorMessage = "Beer name is too long";
 
     Beer longBeer =
-            Beer.builder()
-                    .beerName(longBeerName)
-                    .upc("1234567890123")
-                    .beerStyle(BeerStyle.GOSE)
-                    .price(new BigDecimal("12.95"))
-                    .build();
+        Beer.builder()
+            .beerName(longBeerName)
+            .upc("1234567890123")
+            .beerStyle(BeerStyle.GOSE)
+            .price(new BigDecimal("12.95"))
+            .build();
 
-      beerRepository.save(longBeer);
+    beerRepository.save(longBeer);
 
-      assertThatThrownBy(() -> beerRepository.flush())
-            .isInstanceOf(ConstraintViolationException.class)
-            .hasMessageContaining(expectedErrorMessage);
+    assertThatThrownBy(() -> beerRepository.flush())
+        .isInstanceOf(ConstraintViolationException.class)
+        .hasMessageContaining(expectedErrorMessage);
   }
-
 }

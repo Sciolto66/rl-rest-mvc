@@ -32,12 +32,10 @@ class BeerOrderRepositoryTest {
   void testBeerOrders() {
     BeerOrder beerOrder =
         BeerOrder.builder()
-                .customerRef("Test Order")
-                .customer(testCustomer)
-                .beerOrderShipment(BeerOrderShipment.builder()
-                        .trackingNumber("123456r")
-                        .build())
-                .build();
+            .customerRef("Test Order")
+            .customer(testCustomer)
+            .beerOrderShipment(BeerOrderShipment.builder().trackingNumber("123456r").build())
+            .build();
 
     BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
     System.out.println(savedBeerOrder.getCustomerRef());

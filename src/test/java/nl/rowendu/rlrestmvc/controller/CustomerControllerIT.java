@@ -152,8 +152,8 @@ class CustomerControllerIT {
   }
 
   @Test
-    void testDeleteNotFound() {
-        UUID uuid = UUID.randomUUID();
-        assertThrows(NotFoundException.class, () -> customerController.deleteCustomerById(uuid));
-    }
+  void testDeleteNotFound() {
+    UUID uuid = UUID.randomUUID();
+    assertThrows(NotFoundException.class, () -> customerController.deleteCustomerById(uuid));
+  }
 }

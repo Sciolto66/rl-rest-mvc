@@ -15,38 +15,35 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 class CategoryRepositoryTest {
-    @Autowired
-    CategoryRepository categoryRepository;
-    @Autowired BeerRepository beerRepository;
+  @Autowired CategoryRepository categoryRepository;
+  @Autowired BeerRepository beerRepository;
 
-    Beer testBeer;
+  Beer testBeer;
 
-    @BeforeEach
-    void setUp() {
-        testBeer = beerRepository.findAll().getFirst();
-    }
+  @BeforeEach
+  void setUp() {
+    testBeer = beerRepository.findAll().getFirst();
+  }
 
-    @Test
-    void testGetBeerListByStyle() {
-        Page<Beer> list = beerRepository.findAllByBeerStyle(BeerStyle.IPA, null);
-        assertThat(list).hasSize(548);
-    }
+  @Test
+  void testGetBeerListByStyle() {
+    Page<Beer> list = beerRepository.findAllByBeerStyle(BeerStyle.IPA, null);
+    assertThat(list).hasSize(548);
+  }
 
-    @Transactional
-    @Test
-    void testAddCategory() {
-        Category savedCategory = categoryRepository.save(Category.builder()
-                .description("Ales")
-                .build());
+  @Transactional
+  @Test
+  void testAddCategory() {
+    Category savedCategory =
+        categoryRepository.save(Category.builder().description("Ales").build());
 
-//        categoryRepository.flush();
-        testBeer.addCategory(savedCategory);
-        Beer savedBeer = beerRepository.save(testBeer);
+    //        categoryRepository.flush();
+    testBeer.addCategory(savedCategory);
+    Beer savedBeer = beerRepository.save(testBeer);
 
     System.out.println(savedBeer.getBeerName());
 
     assertThat(savedCategory).isNotNull();
-        assertThat(savedCategory.getId()).isNotNull();
-    }
-
+    assertThat(savedCategory.getId()).isNotNull();
+  }
 }
