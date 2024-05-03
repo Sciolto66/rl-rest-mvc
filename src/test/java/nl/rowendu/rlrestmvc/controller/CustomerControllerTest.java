@@ -5,7 +5,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,7 +59,6 @@ class CustomerControllerTest {
         .perform(
             patch(customerPath + "/{customerId}", customerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerPatch)))
@@ -81,7 +79,6 @@ class CustomerControllerTest {
         .perform(
             delete(customerPath + "/{customerId}", customerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
@@ -99,7 +96,6 @@ class CustomerControllerTest {
         .perform(
             put(customerPath + "/{customerId}", customerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerDto)))
@@ -123,7 +119,6 @@ class CustomerControllerTest {
         .perform(
             post(customerPath)
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerDto)))
