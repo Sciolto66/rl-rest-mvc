@@ -5,6 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -62,6 +63,7 @@ class BeerControllerTest {
         .perform(
             patch(beerPath + "/{beerId}", beerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerPatch)))
@@ -81,6 +83,7 @@ class BeerControllerTest {
         .perform(
             delete(beerPath + "/{beerId}", beerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
@@ -98,6 +101,7 @@ class BeerControllerTest {
         .perform(
             put(beerPath + "/{beerId}", beerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -114,6 +118,7 @@ class BeerControllerTest {
         .perform(
             put(beerPath + "/{beerId}", beerDto.getId())
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -134,6 +139,7 @@ class BeerControllerTest {
         .perform(
             post(beerPath)
                 .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -169,6 +175,7 @@ class BeerControllerTest {
             .perform(
                 post(beerPath)
                     .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(beerDto)))
