@@ -5,14 +5,13 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 import nl.rowendu.rlrestmvc.config.SpringSecConfig;
 import nl.rowendu.rlrestmvc.model.BeerDto;
 import nl.rowendu.rlrestmvc.services.BeerService;
@@ -29,13 +28,27 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(BeerController.class)
 @Import(SpringSecConfig.class)
 class BeerControllerTest {
 
-  public static final String USERNAME = "user1";
-  public static final String PASSWORD = "password";
+  public static final RequestPostProcessor JWT_TOKEN =
+      jwt()
+          .jwt(
+              jwt -> {
+                jwt.claims(
+                        claims -> {
+                          List<String> scopes = new ArrayList<>();
+                          scopes.add("message-read");
+                          scopes.add("message-write");
+                          claims.put("scope", scopes);
+                        })
+                    .subject("messaging-client")
+                    .notBefore(Instant.now().minusSeconds(5L));
+              });
+
   @Autowired MockMvc mockMvc;
   @Autowired ObjectMapper objectMapper;
   @MockBean BeerService beerService;
@@ -61,7 +74,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             patch(beerPath + "/{beerId}", beerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerPatch)))
@@ -80,7 +93,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             delete(beerPath + "/{beerId}", beerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
@@ -97,7 +110,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             put(beerPath + "/{beerId}", beerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -113,7 +126,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             put(beerPath + "/{beerId}", beerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -133,7 +146,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             post(beerPath)
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
@@ -149,7 +162,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             get(beerPath)
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -168,7 +181,7 @@ class BeerControllerTest {
         mockMvc
             .perform(
                 post(beerPath)
-                    .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                    .with(JWT_TOKEN)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(beerDto)))
@@ -186,7 +199,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             get(beerPath)
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -203,7 +216,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             get(beerPath + "/{beerId}", testBeerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -218,7 +231,7 @@ class BeerControllerTest {
     mockMvc
         .perform(
             get(beerPath + "/{beerId}", UUID.randomUUID())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }

@@ -5,7 +5,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,7 +57,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             patch(customerPath + "/{customerId}", customerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerPatch)))
@@ -78,7 +77,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             delete(customerPath + "/{customerId}", customerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
@@ -95,7 +94,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             put(customerPath + "/{customerId}", customerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerDto)))
@@ -118,7 +117,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             post(customerPath)
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customerDto)))
@@ -136,7 +135,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             get(customerPath + "/{customerId}", testCustomerDto.getId())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -151,7 +150,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             get(customerPath + "/{customerId}", UUID.randomUUID())
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
@@ -163,7 +162,7 @@ class CustomerControllerTest {
     mockMvc
         .perform(
             get(customerPath)
-                .with(httpBasic(BeerControllerTest.USERNAME, BeerControllerTest.PASSWORD))
+                .with(BeerControllerTest.JWT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
